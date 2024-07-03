@@ -1,0 +1,18 @@
+export const Colors = {
+    Black: '#111',
+    Red: '#dd0033',
+    Error: '#dd0000',
+    white: '#fff',
+    violet: '#80f',
+    violet2: '#ff10ff',
+    Primary_2: 'rgba(200,200,255,0.1)',
+    Primary: '#0437A0',
+    Gray: '#bbb',
+    Gray_Border: 'rgba(255,255,255,0.3)',
+    blackFadeBg: 'rgba(0,0,0,0.3)',
+    blackFadeBg2: 'rgba(0,0,0,0.1)',
+    redFadeBg: 'rgba(250,10,50,0.7)',
+    Green: '#80ef63',
+    Green_2: '#80af63',
+    Yellow: '#80ef43',
+};
