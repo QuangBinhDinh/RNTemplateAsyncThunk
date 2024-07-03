@@ -1,5 +1,6 @@
 import dict from './vi/vi.json';
-// Typescript with JSON file: https://stackoverflow.com/questions/58277973/how-to-type-check-i18n-dictionaries-with-typescript
+
+// Typescript for JSON: https://stackoverflow.com/questions/58277973/how-to-type-check-i18n-dictionaries-with-typescript
 
 type GetDictValue<T extends string, O> = T extends `${infer A}.${infer B}`
     ? A extends keyof O
