@@ -11,6 +11,7 @@
     "noEmit": true,
     "strict": true,
     "target": "esnext",
+    "resolveJsonModule": true,
     
     // "baseUrl": "./src",
     "paths": {
@@ -30,8 +31,7 @@
 
       "@auth/*":["./src/module/auth/*"],
       "@home/*":["./src/module/home/*"],
-      "@msa009/*":["./src/module/msa009/*"],
-      "@msa001/*":["./src/module/msa001/*"],
+      "@translation/*":["./src/translation/*"]
      
     }
 

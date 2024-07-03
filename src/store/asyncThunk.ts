@@ -6,6 +6,11 @@ import api, { getErrorMessage } from '@api/base';
 import { createSignal, removeSignal } from '@api/abortController';
 import { SERVICE_DEBUG } from '@api/debug';
 
+/**
+ * Service không cần check status = 200
+ */
+const EXCEPTION = ['auth/login'];
+
 type AsyncThunkConfig = {
     /** return type for `thunkApi.getState` */
     state: RootState;
@@ -27,6 +32,8 @@ type AsyncThunkConfig = {
 
 type BaseResponse = {
     [x: string]: any;
+    status: number;
+    msg: string | null;
 };
 
 /**
@@ -42,7 +49,7 @@ type PostData<TParam, TBody> = {
  * @param type Action name of this thunk
  * @param url The suffix url of the request
  * @param transformResponse Selector of BaseResponse, only retrieve some useful value
- * @param header Additonal header for the request
+ * @param header Additional header for the request
  * @returns
  */
 const createGetThunk = <Params, Response = unknown>(
@@ -53,21 +60,28 @@ const createGetThunk = <Params, Response = unknown>(
 ) => {
     return createAsyncThunk<Response, Params, AsyncThunkConfig>(type, async (params, { getState, rejectWithValue }) => {
         const token = getState().auth.accessToken;
-        const headers = { ...header, ...(!!token && { token }) };
+        const headers = { ...header, ...(!!token && { Authorization: token }) };
 
         const signal_name = `${type}_${Date.now}`;
         const signal = createSignal(signal_name);
         thunkLogger(type, {
             url: `${api.defaults.baseURL}${url}`,
-            params,
+            ...(!!params && { params }),
             headers,
         });
         try {
-            const res = await api.get<BaseResponse>(url, { params, headers, signal });
+            const res = await api.get<BaseResponse>(url, { ...(!!params && { params }), headers, signal });
             thunkLogger(type, res, 'response');
             removeSignal(signal_name);
-            return transformResponse(res.data);
+            if (EXCEPTION.includes(type) || res.data.status == 200) {
+                return transformResponse(res.data);
+            }
+            return rejectWithValue({
+                error_code: ERROR_CODE.SERVER_ERR,
+                error_msg: res.data.msg ?? 'Unknown error',
+            });
         } catch (e) {
+            console.log('Error happened', e);
             var error = e as BaseError;
             thunkLogger(type, error, 'error');
             removeSignal(signal_name);
@@ -81,7 +95,7 @@ const createGetThunk = <Params, Response = unknown>(
  * @param type Action name of this thunk
  * @param url The suffix url of the request
  * @param transformResponse Selector of BaseResponse, only retrieve some useful value
- * @param header Additonal header for the request
+ * @param header Additional header for the request
  * @returns
  */
 const createPostThunk = <TParam, TBody, Response = unknown>(
@@ -95,22 +109,28 @@ const createPostThunk = <TParam, TBody, Response = unknown>(
         async (postData, { getState, rejectWithValue }) => {
             const { params, body } = postData;
             const token = getState().auth.accessToken;
-            const headers = { ...header, ...(!!token && { token }) };
+            const headers = { ...header, ...(!!token && { Authorization: token }) };
 
             const signal_name = `${type}_${Date.now}`;
             const signal = createSignal(signal_name);
             thunkLogger(type, {
                 url: `${api.defaults.baseURL}${url}`,
-                params,
+                ...(!!params && { params }),
                 headers,
                 body,
             });
 
             try {
-                const res = await api.post<BaseResponse>(url, body, { params, headers, signal });
+                const res = await api.post<BaseResponse>(url, body, { ...(!!params && { params }), headers, signal });
                 thunkLogger(type, res, 'response');
                 removeSignal(signal_name);
-                return transformResponse(res.data);
+                if (EXCEPTION.includes(type) || res.data.status == 200) {
+                    return transformResponse(res.data);
+                }
+                return rejectWithValue({
+                    error_code: ERROR_CODE.SERVER_ERR,
+                    error_msg: res.data.msg ?? 'Unknown error',
+                });
             } catch (e) {
                 var error = e as BaseError;
                 thunkLogger(type, error, 'error');
@@ -128,7 +148,7 @@ const createPostThunk = <TParam, TBody, Response = unknown>(
  * @param type
  */
 const thunkLogger = (action_name: string, log: any, type: 'request' | 'response' | 'error' = 'request') => {
-    if (!!SERVICE_DEBUG.find(item => action_name.includes(item))) {
+    if (SERVICE_DEBUG.length == 0 || !!SERVICE_DEBUG.find(item => action_name.includes(item))) {
         console.group(`${type.toUpperCase()}:`, action_name);
         console.log(log);
         console.groupEnd();

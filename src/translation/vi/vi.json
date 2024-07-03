@@ -1,0 +1,12 @@
+{
+    "auth" : {
+        "labelUser": "Tên đăng nhập",
+        "labelPass": "Mật khẩu",
+        "errorUser": "Vui lòng nhập tên đăng nhập",
+        "errorPass": "Vui lòng nhập mật khẩu",
+        "labelLogin": "Đăng nhập",
+        "some":{
+            "what": "Some what"
+        }
+    }
+}

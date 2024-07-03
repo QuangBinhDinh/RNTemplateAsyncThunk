@@ -8,11 +8,15 @@ import { userLogin } from './service';
 import { LoginParams } from './type';
 import InputLogin from './components/InputLogin';
 import { normalize } from '@styles/normalize';
+import { trans } from '@translation/service';
+import { useTranslation } from 'react-i18next';
 
 const INPUT_WIDTH = normalize(300);
 const INPUT_HEIGHT = normalize(64);
 
 const LoginScreen = () => {
+    // const x = useTranslation();
+
     const insets = useSafeAreaInsets();
     const [input, setInput] = useState<LoginParams>({
         username: '',
@@ -40,11 +44,7 @@ const LoginScreen = () => {
     };
 
     const validate = () => {
-        const errMsg = !input.username
-            ? 'Vui lòng nhập tên đăng nhập'
-            : !input.password
-            ? 'Vui lòng nhập mật khẩu'
-            : '';
+        const errMsg = !input.username ? trans('auth.errorUser') : !input.password ? trans('auth.errorPass') : '';
         if (errMsg) {
             setError(errMsg);
             return false;
@@ -66,18 +66,18 @@ const LoginScreen = () => {
                 value={input.username}
                 onChangeText={changeInput('username')}
                 containerStyle={{ width: INPUT_WIDTH, height: INPUT_HEIGHT }}
-                placeholder="Tên đăng nhập"
+                placeholder={trans('auth.labelUser')}
             />
             <InputLogin
                 value={input.password}
                 onChangeText={changeInput('password')}
                 isPassword
                 containerStyle={{ width: INPUT_WIDTH, height: INPUT_HEIGHT }}
-                placeholder="Mật khẩu"
+                placeholder={trans('auth.labelPass')}
             />
             <Text style={styles.isError}>{errorMsg}</Text>
             <Pressable style={styles.loginButton} onPress={submitLogin}>
-                <Text style={styles.buttonTitle}>{'Đăng nhập'}</Text>
+                <Text style={styles.buttonTitle}>{trans('auth.labelLogin')}</Text>
             </Pressable>
         </View>
     );
