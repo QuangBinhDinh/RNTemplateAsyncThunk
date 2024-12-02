@@ -10,9 +10,20 @@ import InputLogin from './components/InputLogin';
 import { normalize } from '@styles/normalize';
 import { trans } from '@translation/service';
 import { useTranslation } from 'react-i18next';
+import axios from 'axios';
+import { wrapper } from 'axios-cookiejar-support';
+import { CookieJar } from 'tough-cookie';
 
 const INPUT_WIDTH = normalize(300);
 const INPUT_HEIGHT = normalize(64);
+
+const apiClient = wrapper(
+    axios.create({
+        baseURL: 'https://example.com',
+        withCredentials: true,
+        jar: new CookieJar(),
+    }),
+);
 
 const LoginScreen = () => {
     // const x = useTranslation();
